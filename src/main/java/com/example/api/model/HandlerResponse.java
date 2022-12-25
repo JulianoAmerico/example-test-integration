@@ -1,4 +1,6 @@
 package com.example.api.model;
 
-public record HandlerResponse(String message) {
+import java.util.List;
+
+public record HandlerResponse(String message, List<String> messageErrors) {
 }
