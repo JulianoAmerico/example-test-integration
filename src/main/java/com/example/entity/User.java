@@ -2,23 +2,24 @@ package com.example.entity;
 
 import com.example.api.model.UserRequest;
 import com.example.api.model.UserResponse;
-import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
 @Entity
-@Table(name = "'user'")
+@Table(name = "users")
 @ToString(of = {"name", "document"})
 public class User {
     @Id

@@ -1,6 +1,6 @@
 package com.example.api.model;
 
-import jakarta.validation.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 
 public record UserRequest(
         @NotBlank(message = "name cannot be null ou empty")
