@@ -6,11 +6,10 @@ import com.example.entity.User;
 import com.example.service.UserService;
 import com.example.service.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @SuppressWarnings("ALL")
 @RestController
@@ -23,5 +22,14 @@ public class UserApi {
     public UserResponse save(@RequestBody @Valid UserRequest request) throws ServiceException {
         var savedUser = service.save(User.toDomain(request));
         return User.toResponse(savedUser);
+    }
+
+    @PutMapping("/users/{userId}")
+    public void update(@RequestBody @Valid UserRequest request,
+                       @PathVariable String userId //TODO create constraint to validate UUID
+    ) throws ServiceException {
+        var user = User.toDomain(request);
+        user.setId(UUID.fromString(userId));
+        service.produceUpdate(user);
     }
 }

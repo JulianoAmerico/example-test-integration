@@ -10,3 +10,19 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: create-drop
+  rabbitmq:
+    listener:
+      simple:
+        default-requeue-rejected: false
+rabbit:
+  listener:
+    update-user:
+      queue: update-user.queue
+      exchange: update-user.exchange
+      routing-key: update-user.routing-key
+      dead-letter:
+        queue: ${rabbit.listener.update-user.queue}.dlq
+        exchange: ${rabbit.listener.update-user.exchange}.dlx
+      parking-lot:
+        queue: ${rabbit.listener.update-user.queue}.parking-lot
+        exchange: ${rabbit.listener.update-user.exchange}.parking-lot

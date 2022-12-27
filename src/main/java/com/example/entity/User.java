@@ -2,6 +2,7 @@ package com.example.entity;
 
 import com.example.api.model.UserRequest;
 import com.example.api.model.UserResponse;
+import com.example.rabbitmq.message.UserMessage;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -74,6 +75,32 @@ public class User {
                 user.getDocument(),
                 user.getCreatedAt(),
                 user.getUpdatedAt()
+        );
+    }
+
+    public static UserMessage toMessage(User user) {
+        return new UserMessage(
+                user.getId(),
+                user.getName(),
+                user.getDocument()
+        );
+    }
+
+    public static User toDomain(UserMessage message) {
+        return User.builder()
+                .id(message.id())
+                .name(message.name())
+                .document(message.document())
+                .build();
+    }
+
+    public User copy(String name, String document) {
+        return new User(
+                this.id,
+                name,
+                document,
+                this.createdAt,
+                this.updatedAt
         );
     }
 }

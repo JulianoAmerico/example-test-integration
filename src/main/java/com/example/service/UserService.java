@@ -1,31 +1,51 @@
 package com.example.service;
 
 import com.example.entity.User;
+import com.example.rabbitmq.config.UpdateUserProperties;
 import com.example.repository.UserRepository;
 import com.example.service.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class UserService {
 
     private final UserRepository repository;
+    private final RabbitTemplate rabbitTemplate;
+    private final UpdateUserProperties properties;
 
     @Transactional(rollbackFor = Exception.class)
     public User save(User user) throws ServiceException {
         try {
-            user.isValidToSave(() -> {
-                log.error("Error when try to save user, invalid data {}", user);
-                throw new IllegalArgumentException("Invalid data");
-            });
+            user.isValidToSave(() -> new IllegalArgumentException("Invalid data"));
             return repository.save(user);
         } catch (Exception e) {
-            log.error("Erro when try to save user", e);
             throw new ServiceException("Error when try to save user", e);
+        }
+    }
+
+    public void produceUpdate(User user) throws ServiceException {
+        try {
+            rabbitTemplate.convertAndSend(
+                    properties.getExchange(),
+                    properties.getRoutingKey(),
+                    User.toMessage(user)
+            );
+        } catch (Exception e) {
+            throw new ServiceException("Error when try to update user", e);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void update(User user) throws ServiceException {
+        try {
+            var userTarget = repository.getReferenceById(user.getId()).copy(user.getName(), user.getDocument());
+            repository.save(userTarget);
+        } catch (Exception e) {
+            throw new ServiceException("Error when try to update user", e);
         }
     }
 }
